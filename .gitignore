@@ -1,0 +1,15 @@
+desc.md
+
+logs
+*.log
+npm-debug.log*
+
+*.tsbuildinfo
+.npm
+.eslintcache
+.stylelintcache
+
+.env
+dist/
+node_modules/
+/certificates
