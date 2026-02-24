@@ -41,8 +41,8 @@ app.register(fastifyMultipart);
 app.register(fastifyCors, {
   origin:
     APP_ENV === 'development'
-      ? (process.env.VITE_URL ?? 'http://localhost:5173')
-      : (process.env.VITE_URL ?? 'http://localhost:80'),
+      ? (process.env.VITE_URL ?? `http://localhost:${process.env.FRONTEND_PORT ?? 4173}`)
+      : (process.env.VITE_URL ?? `http://localhost:${process.env.FRONTEND_PORT ?? 80}`),
   credentials: true,
 });
 app.register(fastifyCookie, { secret: process.env.APP_KEY });
