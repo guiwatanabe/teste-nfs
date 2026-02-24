@@ -38,6 +38,8 @@ export async function registerSaleRoutes(app: FastifyInstance) {
       const saleData = request.body as Omit<Sale, 'id'>;
       const sale = { ...saleData, uid: uuid, user_id: user.id!, status: 'PROCESSING' };
 
+      sale.amount = Math.round(sale.amount * 100);
+
       await db.transaction(async tx => {
         await createSale(sale, tx);
         try {
