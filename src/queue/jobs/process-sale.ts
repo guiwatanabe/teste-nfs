@@ -123,8 +123,6 @@ export async function processSaleJob(job: Job) {
         processed_at: new Date(),
         status: 'ERROR',
       });
-
-      throw error;
     }
   } catch (error) {
     if (sale) {
