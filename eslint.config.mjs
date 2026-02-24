@@ -52,6 +52,6 @@ export default defineConfig([
 
   // Ignore patterns
   {
-    ignores: ['node_modules/', 'dist/', 'coverage/', 'build/'],
+    ignores: ['node_modules/', '**/dist/', 'coverage/', 'build/'],
   },
 ]);

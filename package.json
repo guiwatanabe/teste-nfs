@@ -21,7 +21,7 @@
     "seed": "node dist/scripts/seed.js",
     "generate-secret": "node dist/scripts/generate-secret.js",
     "build": "tsc",
-    "test": "test",
+    "test": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -37,7 +37,8 @@
     "eslint": "^9.39.3",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
