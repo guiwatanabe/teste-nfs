@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { salesTable } from '../../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import type { Sale } from './sale.model.js';
 import type { PgTransaction } from 'drizzle-orm/pg-core';
 import { getDbConnection } from '../../db/connection.js';
@@ -15,6 +15,16 @@ export async function findSaleByUid(uid: string): Promise<Sale | null> {
     .limit(1)
     .execute();
   return sales[0] ?? null;
+}
+
+export async function findSalesByUserId(userId: number): Promise<Sale[]> {
+  const sales = await db
+    .select()
+    .from(salesTable)
+    .where(eq(salesTable.user_id, userId))
+    .orderBy(desc(salesTable.id))
+    .execute();
+  return sales;
 }
 
 export async function createSale(

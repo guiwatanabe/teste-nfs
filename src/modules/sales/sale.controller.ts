@@ -6,7 +6,7 @@ import {
 } from 'fastify';
 import saleSchema from './sale.schema.js';
 import { randomUUID } from 'crypto';
-import { createSale } from './sale.service.js';
+import { createSale, findSalesByUserId } from './sale.service.js';
 import type { Sale } from './sale.model.js';
 import { saleQueue } from '../../queue/sale-queue.js';
 import type { User } from '../users/user.model.js';
@@ -15,6 +15,17 @@ import { getDbConnection } from '../../db/connection.js';
 const db = getDbConnection();
 
 export async function registerSaleRoutes(app: FastifyInstance) {
+  app.route({
+    method: 'GET',
+    url: '/sales',
+    onRequest: [app.getDecorator('authenticate') as onRequestHookHandler],
+    handler: async (request: FastifyRequest, response: FastifyReply) => {
+      const user = request.user as Partial<User>;
+      const sales = await findSalesByUserId(user.id!);
+      response.send(sales);
+    },
+  });
+
   app.route({
     method: 'POST',
     url: '/sales',

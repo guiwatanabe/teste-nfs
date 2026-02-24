@@ -4,7 +4,7 @@ import {
   type FastifyRequest,
   type onRequestHookHandler,
 } from 'fastify';
-import { createCertificate } from './certificate.service.js';
+import { createCertificate, findCertificateByUserId } from './certificate.service.js';
 import type { Certificate } from './certificate.model.js';
 import { certificatesDir } from '../../util/create-paths.js';
 import { writeFile } from 'fs/promises';
@@ -14,6 +14,21 @@ import { encryptText } from '../../util/encryption.js';
 import type { User } from '../users/user.model.js';
 
 export async function registerCertificateRoutes(app: FastifyInstance) {
+  app.route({
+    method: 'GET',
+    url: '/certificate',
+    onRequest: [app.getDecorator('authenticate') as onRequestHookHandler],
+    handler: async (request: FastifyRequest, response: FastifyReply) => {
+      const user = request.user as Partial<User>;
+      const certificate = await findCertificateByUserId(user.id!);
+      if (!certificate) {
+        return response.status(404).send({ message: 'Certificate not found.' });
+      }
+
+      response.send(certificate);
+    },
+  });
+
   app.route({
     method: 'POST',
     url: '/certificate',
