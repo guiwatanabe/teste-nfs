@@ -39,10 +39,11 @@ const app = Fastify({
 app.register(fastifyFormbody);
 app.register(fastifyMultipart);
 app.register(fastifyCors, {
-  origin:
-    APP_ENV === 'development'
-      ? (process.env.VITE_URL ?? `http://localhost:${process.env.FRONTEND_PORT ?? 4173}`)
-      : (process.env.VITE_URL ?? `http://localhost:${process.env.FRONTEND_PORT ?? 80}`),
+  origin: [
+    process.env.VITE_URL ?? `http://localhost:${process.env.FRONTEND_PORT ?? 4173}`,
+    'http://localhost:4173',
+    'http://localhost:5173',
+  ].filter(Boolean),
   credentials: true,
 });
 app.register(fastifyCookie, { secret: process.env.APP_KEY });

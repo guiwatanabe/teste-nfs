@@ -45,7 +45,7 @@ export async function registerUserRoutes(app: FastifyInstance) {
         path: '/',
         httpOnly: true,
         secure: process.env.ENVIRONMENT === 'production',
-        sameSite: 'lax',
+        sameSite: process.env.ENVIRONMENT === 'production' ? 'none' : 'lax',
         maxAge: process.env.TOKEN_DURATION ? Number(process.env.TOKEN_DURATION) : 3600,
       });
 
@@ -61,7 +61,7 @@ export async function registerUserRoutes(app: FastifyInstance) {
         path: '/',
         httpOnly: true,
         secure: process.env.ENVIRONMENT === 'production',
-        sameSite: 'lax',
+        sameSite: process.env.ENVIRONMENT === 'production' ? 'none' : 'lax',
       });
 
       response.send({ message: 'Logout successful.' });
