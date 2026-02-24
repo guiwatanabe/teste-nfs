@@ -1,9 +1,26 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest, onRequestHookHandler } from 'fastify';
 import { compare } from 'bcryptjs';
-import { findUserByUsername } from './user.service.js';
+import { findUserById, findUserByUsername } from './user.service.js';
 import authLoginSchema from './user.schema.js';
+import type { User } from './user.model.js';
 
 export async function registerUserRoutes(app: FastifyInstance) {
+  app.route({
+    method: 'GET',
+    url: '/auth/user',
+    onRequest: [app.getDecorator('authenticate') as onRequestHookHandler],
+    handler: async (request: FastifyRequest, response: FastifyReply) => {
+      const user = request.user as User;
+      const foundUser = await findUserById(user.id!);
+      if (!foundUser) {
+        response.status(404).send({ message: 'User not found.' });
+        return;
+      }
+
+      response.send({ ...foundUser, password_hash: undefined });
+    },
+  });
+
   app.route({
     method: 'POST',
     url: '/auth/login',
@@ -23,7 +40,31 @@ export async function registerUserRoutes(app: FastifyInstance) {
       }
 
       const token = app.jwt.sign({ id: user.id, username: user.username });
+
+      response.setCookie('authToken', token, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.ENVIRONMENT === 'production',
+        sameSite: 'lax',
+        maxAge: process.env.TOKEN_DURATION ? Number(process.env.TOKEN_DURATION) : 3600,
+      });
+
       response.send({ message: 'Login successful.', token });
+    },
+  });
+
+  app.route({
+    method: 'POST',
+    url: '/auth/logout',
+    handler: async (_request: FastifyRequest, response: FastifyReply) => {
+      response.clearCookie('authToken', {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.ENVIRONMENT === 'production',
+        sameSite: 'lax',
+      });
+
+      response.send({ message: 'Logout successful.' });
     },
   });
 }

@@ -3,13 +3,14 @@ import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
 import { registerUserRoutes } from '../modules/users/user.controller.js';
 import { registerSaleRoutes } from '../modules/sales/sale.controller.js';
 import fastifyFormbody from '@fastify/formbody';
-
 import fastifyMultipart from '@fastify/multipart';
 import { registerCertificateRoutes } from '../modules/certificates/certificate.controller.js';
 import createPaths from '../util/create-paths.js';
 import { setupErrorHandler } from '../middleware/error-handler.js';
 import { setupJwtHandler } from '../middleware/jwt-handler.js';
 import { registerWebhookRoute } from '../modules/webhook/webhook.controller.js';
+import fastifyCors from '@fastify/cors';
+import fastifyCookie from '@fastify/cookie';
 
 const APP_ENV = process.env.ENVIRONMENT ?? 'development';
 const APP_HOST = process.env.HOST ?? '0.0.0.0';
@@ -37,6 +38,14 @@ const app = Fastify({
 
 app.register(fastifyFormbody);
 app.register(fastifyMultipart);
+app.register(fastifyCors, {
+  origin:
+    APP_ENV === 'development'
+      ? (process.env.VITE_URL ?? 'http://localhost:5173')
+      : (process.env.VITE_URL ?? 'http://localhost:80'),
+  credentials: true,
+});
+app.register(fastifyCookie, { secret: process.env.APP_KEY });
 
 // middleware
 setupErrorHandler(app);

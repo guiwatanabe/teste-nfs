@@ -8,14 +8,26 @@ export function setupJwtHandler(app: FastifyInstance) {
 
   app.register(fastifyJwt, {
     secret: process.env.JWT_SECRET,
+    cookie: {
+      cookieName: 'authToken',
+      signed: false,
+    },
     sign: {
-      expiresIn: '30m',
+      expiresIn: process.env.TOKEN_DURATION ? Number(process.env.TOKEN_DURATION) : 3600,
     },
   });
 
   app.decorate('authenticate', async function (request: FastifyRequest, response: FastifyReply) {
     try {
-      await request.jwtVerify();
+      const token = request.cookies.authToken;
+
+      if (!token) {
+        response.status(401).send({ message: 'Unauthorized' });
+        return;
+      }
+
+      const decoded = await request.jwtVerify({ onlyCookie: true });
+      request.user = decoded;
     } catch (err) {
       response.status(401).send({ message: 'Unauthorized' });
     }
